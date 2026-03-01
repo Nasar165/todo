@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "file"
+name = "manager"
 version = "0.1.0"
 
 [[package]]
