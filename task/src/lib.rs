@@ -1,5 +1,4 @@
 use core::fmt;
-use std::ops::Deref;
 
 const NO_TITLE: &str = "no title";
 
@@ -46,14 +45,6 @@ impl fmt::Display for Task {
     }
 }
 
-impl Deref for Task {
-    type Target = String;
-
-    fn deref(&self) -> &Self::Target {
-        &self.title
-    }
-}
-
 impl PartialEq for Task {
     fn eq(&self, other: &Self) -> bool {
         self.title.to_lowercase() == other.title.to_lowercase()
@@ -63,11 +54,6 @@ impl PartialEq for Task {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn default() {
-        assert_eq!(*Task::default(), NO_TITLE)
-    }
 
     #[test]
     fn from() {

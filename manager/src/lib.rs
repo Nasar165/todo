@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File},
-    io::{self, Read, Write},
+    io::{self, Read, Seek, Write},
 };
 
 pub struct Manager {
@@ -31,8 +31,8 @@ impl Manager {
     }
 
     pub fn read(&self, buff: &mut String) -> io::Result<usize> {
-        //TODO fix bug where read always returns an empty string
         let mut file = self.file.as_ref();
+        file.seek(io::SeekFrom::Start(0))?;
         file.read_to_string(buff)
     }
 }
@@ -84,10 +84,7 @@ mod tests {
         let t = "buff me\n";
         m.write(t)?;
         let mut text = String::new();
-        let read = m.read(&mut text).expect("failed to read text from file");
-        if read == 0 {
-            panic!("failed to read from file size: {}", read)
-        }
+        m.read(&mut text).expect("failed to read text from file");
         assert_eq!(text, t);
         Ok(())
     }
