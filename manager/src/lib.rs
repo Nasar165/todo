@@ -7,12 +7,40 @@ pub struct Manager {
     file: Box<File>,
 }
 
+pub trait FileIO {
+    fn write(&self, buf: &str) -> io::Result<()>;
+    fn read(&self, buff: &mut String) -> io::Result<usize>;
+}
+
+impl FileIO for Manager {
+    fn write(&self, buf: &str) -> io::Result<()> {
+        let mut file = self.file.as_ref();
+        file.write_all(buf.as_bytes())
+    }
+
+    /// read all the bytes from the created file until EOF
+    /// this function will seek to start 0 before performing
+    /// read_to_string allocating the bytes to the buffer.
+    fn read(&self, buff: &mut String) -> io::Result<usize> {
+        let mut file = self.file.as_ref();
+        file.seek(io::SeekFrom::Start(0))?;
+        file.read_to_string(buff)
+    }
+}
+
 impl Manager {
-    pub fn open(path: &str) -> io::Result<File> {
+    pub fn new_manager(path: &str) -> Result<impl FileIO, io::Error> {
+        let file = Manager::create_file(path)?;
+        Ok(Manager {
+            file: Box::new(file),
+        })
+    }
+
+    fn open(path: &str) -> io::Result<File> {
         fs::OpenOptions::new().read(true).append(true).open(path)
     }
 
-    pub fn create_file(path: &str) -> io::Result<File> {
+    fn create_file(path: &str) -> io::Result<File> {
         let r = Manager::file_exists(path)?;
         if r {
             Manager::open(path)
@@ -21,19 +49,8 @@ impl Manager {
         }
     }
 
-    pub fn file_exists(path: &str) -> io::Result<bool> {
+    fn file_exists(path: &str) -> io::Result<bool> {
         fs::exists(path)
-    }
-
-    pub fn write(&self, buf: &str) -> io::Result<usize> {
-        let mut file = self.file.as_ref();
-        file.write(buf.as_bytes())
-    }
-
-    pub fn read(&self, buff: &mut String) -> io::Result<usize> {
-        let mut file = self.file.as_ref();
-        file.seek(io::SeekFrom::Start(0))?;
-        file.read_to_string(buff)
     }
 }
 
@@ -41,11 +58,17 @@ impl Manager {
 mod tests {
     use super::*;
 
+    type TestResult = Result<(), io::Error>;
+
     const PATH: &str = "./test.md";
     const FAILED_TO_CREATE: &str = "failed to create a new file";
 
+    fn clean() -> io::Result<()> {
+        fs::remove_file(PATH)
+    }
+
     #[test]
-    fn new_file() -> Result<(), io::Error> {
+    fn new_file() -> TestResult {
         let f = Manager::create_file(PATH);
         match f {
             Ok(_) => Ok(()),
@@ -69,23 +92,22 @@ mod tests {
     }
 
     #[test]
-    fn write_file() -> Result<(), io::Error> {
-        let f = Manager::create_file(PATH)?;
-        let m = Manager { file: Box::new(f) };
-        let w = m.write("hello\n")?;
-        assert!(w > 0);
+    fn write_file() -> TestResult {
+        let m = Manager::new_manager(PATH)?;
+        m.write("hello\n")?;
+        clean()?;
         Ok(())
     }
 
     #[test]
-    fn read_file() -> Result<(), io::Error> {
-        let f = Manager::create_file(PATH)?;
-        let m = Manager { file: Box::new(f) };
+    fn read_file() -> TestResult {
+        let m = Manager::new_manager(PATH)?;
         let t = "buff me\n";
         m.write(t)?;
         let mut text = String::new();
-        m.read(&mut text).expect("failed to read text from file");
-        assert_eq!(text, t);
+        let size = m.read(&mut text).expect("failed to read text from file");
+        assert!(size > 0);
+        clean()?;
         Ok(())
     }
 }

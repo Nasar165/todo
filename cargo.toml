@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["manager","src", "task"]
+members = ["manager", "src", "task"]
 authors = ["Nasar"]
 description = "a simple todo list"
 categories = ["command-line", "todo"]
