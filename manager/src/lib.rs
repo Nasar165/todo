@@ -1,56 +1,36 @@
-use std::{
-    fs::{self, File},
-    io::{self, Read, Seek, Write},
-};
+// 1. Parse arguments from cli expect len 3
+// 2. argument index 2 is a command list, add, remove, done
+// 3. argument index 3 expect single string of text for the title
+// example: task add "get out and work on my plantation"
+// example: task list
+// example: task remove 1 (row number that is showed in task list command)
+// example: task done 1 (row number that is showed in task list command)
 
-pub struct Manager {
-    file: Box<File>,
+use help::help;
+
+mod help;
+
+//TODO implement state management making simplifying command handling
+pub struct Manger;
+
+type CResult<T> = Result<T, &'static str>;
+
+pub trait Commands {
+    fn process(&self, args: Vec<String>) -> CResult<String>;
 }
 
-pub trait FileIO {
-    fn write(&self, buf: &str) -> io::Result<()>;
-    fn read(&self, buff: &mut String) -> io::Result<usize>;
-}
-
-impl FileIO for Manager {
-    fn write(&self, buf: &str) -> io::Result<()> {
-        let mut file = self.file.as_ref();
-        file.write_all(buf.as_bytes())
-    }
-
-    /// read all the bytes from the created file until EOF
-    /// this function will seek to start 0 before performing
-    /// read_to_string allocating the bytes to the buffer.
-    fn read(&self, buff: &mut String) -> io::Result<usize> {
-        let mut file = self.file.as_ref();
-        file.seek(io::SeekFrom::Start(0))?;
-        file.read_to_string(buff)
-    }
-}
-
-impl Manager {
-    pub fn new_manager(path: &str) -> Result<impl FileIO, io::Error> {
-        let file = Manager::create_file(path)?;
-        Ok(Manager {
-            file: Box::new(file),
-        })
-    }
-
-    fn open(path: &str) -> io::Result<File> {
-        fs::OpenOptions::new().read(true).append(true).open(path)
-    }
-
-    fn create_file(path: &str) -> io::Result<File> {
-        let r = Manager::file_exists(path)?;
-        if r {
-            Manager::open(path)
-        } else {
-            File::create_new(path)
+impl Commands for Manger {
+    fn process(&self, args: Vec<String>) -> CResult<String> {
+        if args.len() <= 1 {
+            return Err(help());
         }
+        Ok(String::new())
     }
+}
 
-    fn file_exists(path: &str) -> io::Result<bool> {
-        fs::exists(path)
+impl Manger {
+    pub fn init() -> impl Commands {
+        Manger {}
     }
 }
 
@@ -58,56 +38,11 @@ impl Manager {
 mod tests {
     use super::*;
 
-    type TestResult = Result<(), io::Error>;
-
-    const PATH: &str = "./test.md";
-    const FAILED_TO_CREATE: &str = "failed to create a new file";
-
-    fn clean() -> io::Result<()> {
-        fs::remove_file(PATH)
-    }
+    const ARGS: [&str; 3] = ["./lib.rs", "add", "test task"];
 
     #[test]
-    fn new_file() -> TestResult {
-        let f = Manager::create_file(PATH);
-        match f {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
-    }
-
-    #[test]
-    fn open_file() {
-        new_file().expect(FAILED_TO_CREATE);
-        Manager::open(PATH).expect("file did not open");
-    }
-
-    #[test]
-    fn file_exists() {
-        new_file().expect(FAILED_TO_CREATE);
-        let Ok(f) = Manager::file_exists(PATH) else {
-            panic!("failed to verify file integrity")
-        };
-        assert!(f);
-    }
-
-    #[test]
-    fn write_file() -> TestResult {
-        let m = Manager::new_manager(PATH)?;
-        m.write("hello\n")?;
-        clean()?;
-        Ok(())
-    }
-
-    #[test]
-    fn read_file() -> TestResult {
-        let m = Manager::new_manager(PATH)?;
-        let t = "buff me\n";
-        m.write(t)?;
-        let mut text = String::new();
-        let size = m.read(&mut text).expect("failed to read text from file");
-        assert!(size > 0);
-        clean()?;
-        Ok(())
+    fn init_empty_args() {
+        let r = Manger::init().process(vec![]);
+        assert!(r.is_err());
     }
 }

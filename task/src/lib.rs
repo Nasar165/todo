@@ -41,7 +41,11 @@ impl From<&str> for Task {
 
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{}", self.title))
+        let is_done = match self.is_done() {
+            true => " done",
+            _ => "",
+        };
+        f.write_fmt(format_args!("{}{}", self.title, is_done))
     }
 }
 
@@ -69,7 +73,10 @@ mod tests {
 
     #[test]
     fn to_string() {
-        assert_eq!(Task::from("test").to_string(), "test");
+        let mut t = Task::from("test");
+        assert_eq!(t.to_string(), "test");
+        t.done();
+        assert_eq!(t.to_string(), "test done")
     }
 
     #[test]
