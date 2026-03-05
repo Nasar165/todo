@@ -6,30 +6,38 @@
 // example: task remove 1 (row number that is showed in task list command)
 // example: task done 1 (row number that is showed in task list command)
 
-use help::help;
+use std::slice::Iter;
 
-mod help;
+use crate::command::{Command, add::Add, help, list::List, remove::Remove};
 
-//TODO implement state management making simplifying command handling
+mod command;
 pub struct Manger;
 
 type CResult<T> = Result<T, &'static str>;
 
-pub trait Commands {
-    fn process(&self, args: Vec<String>) -> CResult<String>;
+pub trait Cli {
+    fn command(&self, args: Iter<String>) -> CResult<String>;
 }
 
-impl Commands for Manger {
-    fn process(&self, args: Vec<String>) -> CResult<String> {
-        if args.len() <= 1 {
-            return Err(help());
+impl Cli for Manger {
+    fn command(&self, mut args: Iter<String>) -> CResult<String> {
+        let c = Command {};
+        let help = help::Help::process(&c, [].iter());
+        let Some(v) = args.next() else {
+            return help;
+        };
+
+        match v.as_str() {
+            "add" => Add::process(&c, args),
+            "list" => List::process(&c, args),
+            "remove" => Remove::process(&c, args),
+            _ => help,
         }
-        Ok(String::new())
     }
 }
 
 impl Manger {
-    pub fn init() -> impl Commands {
+    pub fn init() -> impl Cli {
         Manger {}
     }
 }
@@ -38,11 +46,12 @@ impl Manger {
 mod tests {
     use super::*;
 
-    const ARGS: [&str; 3] = ["./lib.rs", "add", "test task"];
+    const ARGS: [&str; 2] = ["add", "test task"];
 
     #[test]
     fn init_empty_args() {
-        let r = Manger::init().process(vec![]);
+        let args = [];
+        let r = Manger::init().command(args.iter());
         assert!(r.is_err());
     }
 }

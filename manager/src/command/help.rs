@@ -1,3 +1,7 @@
+use std::slice::Iter;
+
+use crate::command::Command;
+
 const TODO_HELP: &str = "todo is a simple rust cli designed to help keep track of simple tasks
 
 Usage: todo <command> <arguments>
@@ -11,20 +15,30 @@ The commands are:
                 - ex, todo done 1
     remove  removes a task from the list using the index number from list
                 - ex, todo remove 2
+    help    prints available commands with simple examples
+                - ex, todo help
 ";
 
-// returns helpful information on how to used the
-// cli and guiding the user towards intended usage.
-pub fn help() -> &'static str {
-    TODO_HELP
+pub trait Help {
+    fn process(&self, _args: Iter<String>) -> Result<String, &'static str> {
+        Ok(TODO_HELP.to_string())
+    }
 }
+
+impl Help for Command {}
 
 #[cfg(test)]
 mod test {
-    use crate::help::{TODO_HELP, help};
+    use super::*;
+
+    struct Mock;
+
+    impl Help for Mock {}
 
     #[test]
     fn get_help() {
-        assert_eq!(help(), TODO_HELP)
+        let m = Mock {};
+        let res = Help::process(&m, [].iter()).unwrap();
+        assert_eq!(res, TODO_HELP)
     }
 }
