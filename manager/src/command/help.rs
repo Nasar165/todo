@@ -37,8 +37,7 @@ mod test {
 
     #[test]
     fn get_help() {
-        let m = Mock {};
-        let res = Help::process(&m, [].iter()).unwrap();
+        let res = Help::process(&Mock {}, [].iter()).unwrap();
         assert_eq!(res, TODO_HELP)
     }
 }

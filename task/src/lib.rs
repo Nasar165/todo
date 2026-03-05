@@ -27,22 +27,35 @@ impl Task {
 }
 
 impl From<&str> for Task {
-    fn from(title: &str) -> Self {
-        if title.is_empty() {
+    fn from(task: &str) -> Self {
+        if task.is_empty() {
             Default::default()
         }
 
-        Task {
+        let mut split = task.split("::");
+        let Some(title) = split.next() else {
+            return Default::default();
+        };
+
+        let mut task = Task {
             title: title.to_string(),
             done: false,
+        };
+
+        if let Some(done) = split.next()
+            && done.to_lowercase() == "done"
+        {
+            task.done();
         }
+
+        task
     }
 }
 
 impl fmt::Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let is_done = match self.is_done() {
-            true => " done",
+            true => " (completed)",
             _ => "",
         };
         f.write_fmt(format_args!("{}{}", self.title, is_done))
@@ -65,6 +78,11 @@ mod tests {
     }
 
     #[test]
+    fn from_is_done() {
+        assert!(Task::from("Test::done").is_done())
+    }
+
+    #[test]
     fn is_done() {
         let mut t = Task::from("sample");
         t.done();
@@ -76,7 +94,7 @@ mod tests {
         let mut t = Task::from("test");
         assert_eq!(t.to_string(), "test");
         t.done();
-        assert_eq!(t.to_string(), "test done")
+        assert_eq!(t.to_string(), "test (completed)")
     }
 
     #[test]

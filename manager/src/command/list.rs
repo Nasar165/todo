@@ -1,10 +1,24 @@
 use std::slice::Iter;
 
-use crate::command::Command;
+use crate::{Manger, command::Command};
 
 pub trait List {
-    fn process(&self, args: Iter<String>) -> Result<String, &'static str> {
-        todo!()
+    fn process(&self, _args: Iter<String>, manager: &Manger) -> Result<String, &'static str> {
+        let mut buff = String::new();
+        let Ok(_) = manager.io.read(&mut buff) else {
+            return Err("failed to read file");
+        };
+
+        let mut i = 0;
+        let tasks: Vec<String> = buff
+            .lines()
+            .map(|l| {
+                let t = task::Task::from(l);
+                i += 1;
+                format!("{i}: {}", t)
+            })
+            .collect();
+        Ok(tasks.join("\n"))
     }
 }
 

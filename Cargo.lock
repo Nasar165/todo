@@ -9,6 +9,10 @@ version = "0.1.0"
 [[package]]
 name = "manager"
 version = "0.1.0"
+dependencies = [
+ "files",
+ "task",
+]
 
 [[package]]
 name = "src"

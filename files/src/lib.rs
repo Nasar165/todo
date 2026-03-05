@@ -32,27 +32,18 @@ impl FileIO for FileManager {
 
 impl FileManager {
     pub fn new_manager(path: &str) -> Result<impl FileIO, io::Error> {
-        let file = FileManager::create_file(path)?;
+        let file = FileManager::open(path)?;
         Ok(FileManager {
             file: Box::new(file),
         })
     }
 
     fn open(path: &str) -> io::Result<File> {
-        fs::OpenOptions::new().read(true).append(true).open(path)
-    }
-
-    fn create_file(path: &str) -> io::Result<File> {
-        let r = FileManager::file_exists(path)?;
-        if r {
-            FileManager::open(path)
-        } else {
-            File::create_new(path)
-        }
-    }
-
-    fn file_exists(path: &str) -> io::Result<bool> {
-        fs::exists(path)
+        fs::OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(path)
     }
 }
 
@@ -63,40 +54,14 @@ mod tests {
     type TestResult = Result<(), io::Error>;
 
     const PATH: &str = "./test.md";
-    const FAILED_TO_CREATE: &str = "failed to create a new file";
 
     fn clean() -> io::Result<()> {
         fs::remove_file(PATH)
     }
 
     #[test]
-    fn empty_file_path() {
-        let f = FileManager::create_file("");
-        assert!(f.is_err())
-    }
-
-    #[test]
-    fn new_file() -> TestResult {
-        let f = FileManager::create_file(PATH);
-        match f {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
-    }
-
-    #[test]
     fn open_file() {
-        new_file().expect(FAILED_TO_CREATE);
         FileManager::open(PATH).expect("file did not open");
-    }
-
-    #[test]
-    fn file_exists() {
-        new_file().expect(FAILED_TO_CREATE);
-        let Ok(f) = FileManager::file_exists(PATH) else {
-            panic!("failed to verify file integrity")
-        };
-        assert!(f);
     }
 
     #[test]

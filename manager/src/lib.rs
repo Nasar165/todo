@@ -11,7 +11,9 @@ use std::slice::Iter;
 use crate::command::{Command, add::Add, help, list::List, remove::Remove};
 
 mod command;
-pub struct Manger;
+pub struct Manger {
+    io: Box<dyn files::FileIO>,
+}
 
 type CResult<T> = Result<T, &'static str>;
 
@@ -28,8 +30,9 @@ impl Cli for Manger {
         };
 
         match v.as_str() {
-            "add" => Add::process(&c, args),
-            "list" => List::process(&c, args),
+            "add" => Add::process(&c, args, self),
+            "list" => List::process(&c, args, self),
+            "done" => List::process(&c, args, self),
             "remove" => Remove::process(&c, args),
             _ => help,
         }
@@ -37,8 +40,14 @@ impl Cli for Manger {
 }
 
 impl Manger {
+    /// creates a new cli with a file manager that will open or create
+    /// a new file at current working directory. The function will panic
+    /// if the FileIO fails to open or create todo.txt
     pub fn init() -> impl Cli {
-        Manger {}
+        match files::FileManager::new_manager("./todo.txt") {
+            Ok(f) => Manger { io: Box::new(f) },
+            Err(e) => panic!("{}", e),
+        }
     }
 }
 
@@ -52,6 +61,13 @@ mod tests {
     fn init_empty_args() {
         let args = [];
         let r = Manger::init().command(args.iter());
-        assert!(r.is_err());
+        assert!(r.unwrap().contains("Usage: todo <command> <arguments>"));
+    }
+
+    #[test]
+    fn test_add() {
+        let args = ARGS.map(|f| f.to_string());
+        let r = Manger::init().command(args.iter());
+        assert_eq!(r.unwrap(), format!("{} has been added", ARGS[1]));
     }
 }
