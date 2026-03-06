@@ -23,3 +23,29 @@ pub trait List {
 }
 
 impl List for Command {}
+
+#[cfg(test)]
+mod test {
+    use std::{fs, io};
+
+    use super::*;
+
+    struct Mock;
+
+    impl List for Mock {}
+
+    fn clean() -> io::Result<()> {
+        fs::remove_file("./todo.txt")
+    }
+
+    #[test]
+    fn list_all() {
+        let manager = Manger {
+            io: Box::new(files::FileManager::new_manager("./todo.txt").unwrap()),
+        };
+        let m = Mock {};
+        let read = m.process([].iter(), &manager);
+        clean().unwrap();
+        assert!(read.is_ok());
+    }
+}

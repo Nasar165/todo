@@ -1,4 +1,4 @@
-use std::{fmt::format, slice::Iter};
+use std::slice::Iter;
 
 use task::Task;
 

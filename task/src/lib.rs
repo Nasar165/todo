@@ -24,6 +24,10 @@ impl Task {
     pub fn is_done(&self) -> bool {
         self.done
     }
+
+    pub fn from_string_to_list(list: &str) -> Vec<Self> {
+        list.split("\n").map(Task::from).collect()
+    }
 }
 
 impl From<&str> for Task {

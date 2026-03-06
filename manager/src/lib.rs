@@ -8,7 +8,7 @@
 
 use std::slice::Iter;
 
-use crate::command::{Command, add::Add, help, list::List, remove::Remove};
+use crate::command::{Command, add::Add, done::Done, help, list::List, remove::Remove};
 
 mod command;
 pub struct Manger {
@@ -32,8 +32,8 @@ impl Cli for Manger {
         match v.as_str() {
             "add" => Add::process(&c, args, self),
             "list" => List::process(&c, args, self),
-            "done" => List::process(&c, args, self),
-            "remove" => Remove::process(&c, args),
+            "done" => Done::process(&c, args, self),
+            "remove" => Remove::process(&c, args, self),
             _ => help,
         }
     }

@@ -10,6 +10,7 @@ pub struct FileManager {
 pub trait FileIO {
     fn write(&self, buf: &str) -> io::Result<()>;
     fn read(&self, buff: &mut String) -> io::Result<usize>;
+    fn clear_file(&self) -> io::Result<()>;
 }
 
 impl FileIO for FileManager {
@@ -27,6 +28,10 @@ impl FileIO for FileManager {
         let mut file = self.file.as_ref();
         file.seek(io::SeekFrom::Start(0))?;
         file.read_to_string(buff)
+    }
+
+    fn clear_file(&self) -> io::Result<()> {
+        self.file.set_len(0)
     }
 }
 
