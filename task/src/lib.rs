@@ -18,11 +18,21 @@ impl Default for Task {
 
 impl Task {
     pub fn done(&mut self) {
-        self.done = true
+        if !self.is_done() {
+            self.done = true
+        }
     }
 
     pub fn is_done(&self) -> bool {
         self.done
+    }
+
+    pub fn save(&self) -> String {
+        let done = match self.is_done() {
+            true => "::done",
+            false => "",
+        };
+        format!("{}{}", self.title, done)
     }
 
     pub fn from_string_to_list(list: &str) -> Vec<Self> {

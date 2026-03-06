@@ -23,7 +23,7 @@ pub trait Done {
 
         t.done();
         let result = t.to_string();
-        let l: Vec<String> = l.iter().map(|f| f.to_string()).collect();
+        let l: Vec<String> = l.iter().map(|f| f.save()).collect();
         write_to_file(&l.join("\n"), manager)?;
         Ok(format!("{} has been marked as done", result))
     }
