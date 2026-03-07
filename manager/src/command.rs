@@ -38,6 +38,19 @@ fn process_index(
     Ok((index, buff))
 }
 
+/// verifies that an index is within bounds
+fn valid_index(len: usize, index: usize) -> Result<(), &'static str> {
+    if len == 0 {
+        return Err("length is 0, indicating not values");
+    }
+
+    let index = index - 1;
+    if index > len {
+        return Err("invalid index length");
+    }
+    Ok(())
+}
+
 /// write a list of task to a file by clearing the file and. then writing
 /// the task to the file. This action is not bulletproof since there is a
 /// risk that the write could fail leading to data loss.
@@ -84,5 +97,12 @@ mod test {
         let (index, _) = process_index([String::from("1")].iter(), &manager).unwrap();
         clean().unwrap();
         assert_eq!(index, 1)
+    }
+
+    #[test]
+    fn index_is_valid() {
+        assert!(valid_index(10, 5).is_ok());
+        assert!(valid_index(0, 5).is_err());
+        assert!(valid_index(0, 0).is_err());
     }
 }
