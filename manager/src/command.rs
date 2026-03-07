@@ -10,6 +10,9 @@ pub mod remove;
 
 pub struct Command;
 
+/// gets next value from the iterator and verifies that it's
+/// a valid number and parsed into a usize. this function will also
+/// return a string containing the content of todo text file.
 fn process_index(
     mut args: Iter<String>,
     manager: &Manger,
@@ -35,6 +38,10 @@ fn process_index(
     Ok((index, buff))
 }
 
+/// write a list of task to a file by clearing the file and. then writing
+/// the task to the file. This action is not bulletproof since there is a
+/// risk that the write could fail leading to data loss.
+/// it would be good to backup the file to tmp before clearing and writing.
 fn write_to_file(tasks: &str, manager: &Manger) -> Result<(), &'static str> {
     if manager.io.clear_file().is_err() {
         return Err("failed to clear file before write");
@@ -45,4 +52,37 @@ fn write_to_file(tasks: &str, manager: &Manger) -> Result<(), &'static str> {
     };
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use std::{fs, io};
+
+    use super::*;
+
+    fn clean() -> io::Result<()> {
+        fs::remove_file("./todo.txt")
+    }
+
+    fn new_manager() -> Manger {
+        Manger {
+            io: Box::new(files::FileManager::new_manager("./todo.txt").unwrap()),
+        }
+    }
+
+    #[test]
+    fn write_file() {
+        let manager = new_manager();
+        let wr = write_to_file("test me\nwelcome\n", &manager);
+        clean().unwrap();
+        assert!(wr.is_ok())
+    }
+
+    #[test]
+    fn get_index() {
+        let manager = new_manager();
+        let (index, _) = process_index([String::from("1")].iter(), &manager).unwrap();
+        clean().unwrap();
+        assert_eq!(index, 1)
+    }
 }
