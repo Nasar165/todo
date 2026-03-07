@@ -8,6 +8,7 @@ A simple todo command line program written in rust for educational purpose
 - [Prerequisites](#prerequisites)
   - [Required](#required)
 - [Development](#development)
+  - [how to run](#how-to-run)
   - [tests](#tests)
 - [Deployment](#deployment)
   - [Compile](#compile)
@@ -16,6 +17,9 @@ A simple todo command line program written in rust for educational purpose
 - [License](#license)
 
 ## Summary
+
+Todo is a simple todo list in a CLI form written in Rust. It's a demo project and should under no circumstances be considered
+a product of any form. If you are interested you can clone or fork the project and make you own test and adjustments.
 
 ### Prerequisites
 
@@ -26,6 +30,18 @@ The following tools are required for anyone who wishes to compile or run the cli
 - [Rust](https://rust-lang.org/)
 
 ## Development
+
+### How to run
+to run the project simply use cargo or compile the project and use ./, for more info
+on compiling read [compile](#compile).
+
+*Example*
+```bash
+cargo run -- add "my first task"
+cargo run -- list
+cargo run -- done 1
+cargo run -- remove 1 
+```
 
 ### Tests
 
@@ -60,7 +76,7 @@ RUST_TEST_THREADS=2 cargo test
 
 ### Authors
 
-- **Xaness** - _Initial work_ - [Xaness](https://github.com/Nasar165)
+- **Xaness** - *Initial work* - [Xaness](https://github.com/Nasar165)
 
 See also the list of [contributors](https://github.com/Nasar165/todo/graphs/contributors)
 who participated in this project.

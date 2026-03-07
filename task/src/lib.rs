@@ -17,16 +17,24 @@ impl Default for Task {
 }
 
 impl Task {
+    /// marks the task as done.
     pub fn done(&mut self) {
         if !self.is_done() {
             self.done = true
         }
     }
 
+    /// returns true if the task is marked as done (true).
     pub fn is_done(&self) -> bool {
         self.done
     }
 
+    /// converts the task into a string that can be stored in a file
+    /// that the software understands.
+    ///
+    /// # Safety
+    /// This function is a bit dangerous should it be used in a pipe
+    /// since the software does not perform any sanitation of the title.
     pub fn save(&self) -> String {
         let done = match self.is_done() {
             true => "::done",
@@ -35,6 +43,7 @@ impl Task {
         format!("{}{}", self.title, done)
     }
 
+    // parses a string into a vector of tasks
     pub fn from_string_to_list(list: &str) -> Vec<Self> {
         list.split("\n").map(Task::from).collect()
     }
@@ -61,7 +70,6 @@ impl From<&str> for Task {
         {
             task.done();
         }
-
         task
     }
 }

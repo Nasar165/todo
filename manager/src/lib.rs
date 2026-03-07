@@ -18,6 +18,8 @@ pub struct Manger {
 type CResult<T> = Result<T, &'static str>;
 
 pub trait Cli {
+    /// process arguments into commands capable of executing
+    /// desired functionality
     fn command(&self, args: Iter<String>) -> CResult<String>;
 }
 

@@ -30,12 +30,16 @@ impl FileIO for FileManager {
         file.read_to_string(buff)
     }
 
+    /// clears the content of the open files by setting
+    /// the bytes to 0.
     fn clear_file(&self) -> io::Result<()> {
         self.file.set_len(0)
     }
 }
 
 impl FileManager {
+    /// create a new Manager instance of File this function will
+    /// either open or create the file using read, append.
     pub fn new_manager(path: &str) -> Result<impl FileIO, io::Error> {
         let file = FileManager::open(path)?;
         Ok(FileManager {
