@@ -11,7 +11,7 @@ pub trait Done {
     fn process(&self, args: Iter<String>, manager: &Manger) -> Result<String, &'static str> {
         let (index, buff) = process_index(args, manager)?;
         let mut l = Task::from_string_to_list(&buff);
-        valid_index(l.len(), index)?;
+        let index = valid_index(l.len(), index)?;
 
         let Some(t) = l.get_mut(index) else {
             return Err("failed to get tasks");

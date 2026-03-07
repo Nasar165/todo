@@ -9,7 +9,7 @@ pub trait Remove {
     fn process(&self, args: Iter<String>, manager: &Manger) -> Result<String, &'static str> {
         let (index, buff) = process_index(args, manager)?;
         let mut l: Vec<&str> = buff.lines().collect();
-        valid_index(l.len(), index)?;
+        let index = valid_index(l.len(), index)?;
         let removed = l.remove(index);
         write_to_file(l.join("\n").as_str(), manager)?;
         Ok(format!("{} has been removed", removed))

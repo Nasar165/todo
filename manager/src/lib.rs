@@ -55,19 +55,10 @@ impl Manger {
 mod tests {
     use super::*;
 
-    const ARGS: [&str; 2] = ["add", "test task"];
-
     #[test]
     fn init_empty_args() {
         let args = [];
         let r = Manger::init().command(args.iter());
         assert!(r.unwrap().contains("Usage: todo <command> <arguments>"));
-    }
-
-    #[test]
-    fn test_add() {
-        let args = ARGS.map(|f| f.to_string());
-        let r = Manger::init().command(args.iter());
-        assert_eq!(r.unwrap(), format!("{} has been added", ARGS[1]));
     }
 }

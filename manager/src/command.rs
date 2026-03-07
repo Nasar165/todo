@@ -39,7 +39,7 @@ fn process_index(
 }
 
 /// verifies that an index is within bounds
-fn valid_index(len: usize, index: usize) -> Result<(), &'static str> {
+fn valid_index(len: usize, index: usize) -> Result<usize, &'static str> {
     if len == 0 {
         return Err("length is 0, indicating not values");
     }
@@ -48,7 +48,7 @@ fn valid_index(len: usize, index: usize) -> Result<(), &'static str> {
     if index > len {
         return Err("invalid index length");
     }
-    Ok(())
+    Ok(index)
 }
 
 /// write a list of task to a file by clearing the file and. then writing
